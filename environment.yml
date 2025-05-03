@@ -1,0 +1,14 @@
+name: chesson
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.11
+  - pygame>=2.5.0
+  - typing-extensions>=4.0.0
+  # Dev dependencies
+  - pytest>=7.0.0
+  - pytest-cov>=4.1.0
+  - pytest-sugar>=1.0.0
+  - ruff>=0.2.0
+  - mypy>=1.0.0 

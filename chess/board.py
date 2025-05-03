@@ -1,12 +1,14 @@
 
 
-from typing import Literal
+from typing import Literal, Optional
+
+from chess.fen import Fen
 
 
 class Board:
     board: list[list[Literal['p', 'r', 'n', 'b', 'q', 'k', 'P', 'R', 'N', 'B', 'Q', 'K']]]
 
-    def __init__(self, fen: str=None):
+    def __init__(self, fen: Optional[Fen] = None):
         if fen:
             self.load_fen(fen)
         else:
@@ -15,10 +17,10 @@ class Board:
     def load_start_position(self):
         self.load_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
-    def load_fen(self, fen: str) -> None:
+    def load_fen(self, fen: Fen) -> None:
         # TODO: Validate FEN
         board = []
-        for tokens in fen.split(' ')[0].split('/'):
+        for tokens in fen.get_board_str().split('/'):
             row = []
             for token in tokens:
                 if token.isnumeric():
