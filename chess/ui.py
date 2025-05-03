@@ -1,6 +1,7 @@
 import pygame
 
 from chess.constants import JetBrainsMono
+from chess.game import Game
 
 # PyGame setup
 pygame.init()
@@ -9,6 +10,19 @@ font = pygame.font.Font(JetBrainsMono, 10)
 screen = pygame.display.set_mode((500,500))
 clock = pygame.time.Clock()
 running = True
+
+# Initialize game
+game = Game()
+
+# Dictionary for piece symbols (using Unicode chess pieces)
+PIECES = {
+    'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
+    'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙',
+    '.': ' '
+}
+
+# Create a larger font for pieces
+piece_font = pygame.font.SysFont('Arial', 40)  # Arial tends to have good Unicode support
 
 while running:
     # poll for events
@@ -35,7 +49,18 @@ while running:
             colour = "white" if ((row + col)%2==0) else "black"
             pygame.draw.rect(screen, colour, pygame.Rect(((50+50*col), (50+50*row)),(50, 50)))
     
-    # Text
+    # Pieces
+    for row in range(8):
+        for col in range(8):
+            piece = game.board.board[row][col]
+            if piece != '.':
+                text_color = "white" if piece.isupper() else "black"
+                piece_text = piece_font.render(PIECES[piece], True, text_color)
+                # Center the piece in the square
+                text_rect = piece_text.get_rect(center=(75+50*col, 75+50*row))
+                screen.blit(piece_text, text_rect)
+    
+    # Coordinates
     for row in range(8):
         text = font.render(str(8-row), True, "black")
         screen.blit(text, (40, 88+50*row))
