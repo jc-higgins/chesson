@@ -1,7 +1,11 @@
 import pygame
 
+from chess.constants import JetBrainsMono
+
 # PyGame setup
 pygame.init()
+pygame.font.init()
+font = pygame.font.Font(JetBrainsMono, 10)
 screen = pygame.display.set_mode((500,500))
 clock = pygame.time.Clock()
 running = True
@@ -18,19 +22,28 @@ while running:
 
     # RENDER YOUR GAME HERE
     # Vertical Lines
-    for v in range(50, 451, 50):
-        pygame.draw.line(screen, "black", (v, 50), (v, 450), width=2)
+    pygame.draw.line(screen, "black", (48, 48), (48, 450), width=2)
+    pygame.draw.line(screen, "black", (450, 48), (450, 450), width=2)
     
-
     # Horizontal Lines
-    for h in range(50, 451, 50):
-        pygame.draw.line(screen, "black", (50, h), (450, h), width=2)
+    pygame.draw.line(screen, "black", (48, 48), (450, 48), width=2)
+    pygame.draw.line(screen, "black", (48, 450), (450, 450), width=2)
 
+    # Squares
     for row in range(8):
         for col in range(8):
             colour = "white" if ((row + col)%2==0) else "black"
-            pygame.draw.rect(screen, colour, pygame.Rect(((51+50*col), (51+50*row)),(50, 50)))
+            pygame.draw.rect(screen, colour, pygame.Rect(((50+50*col), (50+50*row)),(50, 50)))
     
+    # Text
+    for row in range(8):
+        text = font.render(str(8-row), True, "black")
+        screen.blit(text, (40, 88+50*row))
+    
+    for col in range(8):
+        text = font.render(chr(97+col), True, "black")
+        screen.blit(text, (50+50*col, 451))
+
     # flip() the display to show rendered work
     pygame.display.flip()
 
