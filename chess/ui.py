@@ -1,6 +1,6 @@
 import pygame
 
-from chess.constants import JetBrainsMono
+from chess.constants import JetBrainsMono, PIECES_DIR
 from chess.game import Game
 
 # PyGame setup
@@ -14,15 +14,23 @@ running = True
 # Initialize game
 game = Game()
 
-# Dictionary for piece symbols (using Unicode chess pieces)
-PIECES = {
-    'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
-    'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙',
-    '.': ' '
-}
+# Load and scale piece images
+PIECES = {}
+SQUARE_SIZE = 50
+PIECE_SIZE = SQUARE_SIZE - 5  # Piece size slightly smaller than square
 
-# Create a larger font for pieces
-piece_font = pygame.font.SysFont('Arial', 40)  # Arial tends to have good Unicode support
+for piece_type, filename in {
+    # Black pieces (lowercase)
+    'r': "rdt.png", 'n': "ndt.png", 'b': "bdt.png",
+    'q': "qdt.png", 'k': "kdt.png", 'p': "pdt.png",
+    # White pieces (uppercase)
+    'R': "rlt.png", 'N': "nlt.png", 'B': "blt.png",
+    'Q': "qlt.png", 'K': "klt.png", 'P': "plt.png",
+}.items():
+    # Load image
+    piece_img = pygame.image.load(PIECES_DIR / filename)
+    # Scale with smooth scaling for better quality
+    PIECES[piece_type] = pygame.transform.smoothscale(piece_img, (PIECE_SIZE, PIECE_SIZE))
 
 while running:
     # poll for events
@@ -46,7 +54,7 @@ while running:
     # Squares
     for row in range(8):
         for col in range(8):
-            colour = "white" if ((row + col)%2==0) else "black"
+            colour = "white" if ((row + col)%2==0) else "#A9A9A9"
             pygame.draw.rect(screen, colour, pygame.Rect(((50+50*col), (50+50*row)),(50, 50)))
     
     # Pieces
@@ -54,11 +62,11 @@ while running:
         for col in range(8):
             piece = game.board.board[row][col]
             if piece != '.':
-                text_color = "white" if piece.isupper() else "black"
-                piece_text = piece_font.render(PIECES[piece], True, text_color)
-                # Center the piece in the square
-                text_rect = piece_text.get_rect(center=(75+50*col, 75+50*row))
-                screen.blit(piece_text, text_rect)
+                piece_img = PIECES[piece]
+                # Calculate exact center position
+                x = 50 + 50*col + (SQUARE_SIZE - PIECE_SIZE)//2
+                y = 50 + 50*row + (SQUARE_SIZE - PIECE_SIZE)//2
+                screen.blit(piece_img, (x, y))
     
     # Coordinates
     for row in range(8):

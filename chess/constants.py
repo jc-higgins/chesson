@@ -5,3 +5,6 @@ ASSETS = Path(__file__).parent / "assets"
 
 # Font paths
 JetBrainsMono = ASSETS / "fonts" / "JetBrainsMono-Regular.ttf"
+
+# Piece paths
+PIECES_DIR = ASSETS / "pieces"

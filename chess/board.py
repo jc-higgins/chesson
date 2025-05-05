@@ -2,7 +2,7 @@
 
 from typing import Literal, Optional
 
-from chess.fen import Fen
+from chess.fen import STARTING_FEN_STR, Fen
 
 
 class Board:
@@ -15,7 +15,7 @@ class Board:
             self.load_start_position()
 
     def load_start_position(self):
-        self.load_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.load_fen(Fen(STARTING_FEN_STR))
 
     def load_fen(self, fen: Fen) -> None:
         # TODO: Validate FEN
@@ -29,8 +29,6 @@ class Board:
                     row.append(token)
             board.append(row)
         self.board = board
-        print(self.board)
-
 
     def __str__(self) -> str:
         s = "========\n"
