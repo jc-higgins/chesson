@@ -1,3 +1,4 @@
+from typing import Optional
 import pygame
 
 from chess.constants import JetBrainsMono, PIECES_DIR
@@ -19,6 +20,24 @@ PIECES = {}
 SQUARE_SIZE = 50
 PIECE_SIZE = SQUARE_SIZE - 5  # Piece size slightly smaller than square
 
+# Colours
+LIGHT_SQUARE = "white"
+DARK_SQUARE = "#A9A9A9"
+SELECTED_COLOUR = "#646464"
+
+# Game State
+selected_square = None # (row, col)
+
+def get_square_from_mouse(pos) -> Optional[tuple[str,str]]:
+    x,y = pos
+    if not (50 <= x <= 450 and 50 <= y <= 450):
+        return None
+
+    column = (x - 50) // SQUARE_SIZE
+    row = (y - 50) // SQUARE_SIZE
+    return row, column
+
+
 for piece_type, filename in {
     # Black pieces (lowercase)
     'r': "rdt.png", 'n': "ndt.png", 'b': "bdt.png",
@@ -38,6 +57,17 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                clicked_square = get_square_from_mouse(event.pos)
+                if clicked_square:
+                    row, col = clicked_square
+                    if selected_square == (row, col):
+                        selected_square = None
+                    elif game.board.board[row][col] != '.':
+                        selected_square = (row, col)
+                    else:
+                        selected_square = None
     
     # Clear the frame
     screen.fill("grey")
@@ -57,6 +87,11 @@ while running:
             colour = "white" if ((row + col)%2==0) else "#A9A9A9"
             pygame.draw.rect(screen, colour, pygame.Rect(((50+50*col), (50+50*row)),(50, 50)))
     
+    # Selected Square
+    if selected_square:
+        row, col = selected_square
+        pygame.draw.rect(screen, SELECTED_COLOUR, pygame.Rect(((50+50*col), (50+50*row)),(50, 50)))
+
     # Pieces
     for row in range(8):
         for col in range(8):
