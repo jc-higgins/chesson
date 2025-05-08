@@ -15,7 +15,8 @@ class Game:
         self.fullmove_number = fen.get_fullmove_number()
 
     def get_legal_moves(self, row: int, col: int) -> list[tuple[int, int]]:
-        piece = self.board.board[row-1][col-1]
+        piece = self.board.board[8-row][col-1]
+        logging.warning(f"Piece: {piece}")
         piece = piece.lower()
         match piece:
             case 'p':
@@ -51,7 +52,7 @@ class Game:
         for move in possible_moves:
             if move[0] < 1 or move[0] > 8 or move[1] < 1 or move[1] > 8:
                 continue
-            if self.board.board[move[0]-1][move[1]-1] != '.':
+            if self.board.board[8-move[0]][move[1]-1] != '.':
                 continue
             legal_moves.append(move)
         return legal_moves
@@ -74,8 +75,8 @@ class Game:
         for prow, pcol in possible_moves:
             if prow < 1 or prow > 8 or pcol < 1 or pcol > 8:
                 continue
-            if self.board.board[prow-1][pcol-1] != '.':
-                occupying_piece = self.board.board[prow-1][pcol-1]
+            if self.board.board[8-prow][pcol-1] != '.':
+                occupying_piece = self.board.board[8-prow][pcol-1]
                 logging.warning(f"Occupying piece: {occupying_piece} on turn {self.turn}")
                 if self.turn == 'w' and occupying_piece.isupper():
                     continue
