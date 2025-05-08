@@ -1,6 +1,13 @@
-
+import logging
+import pytest
 
 from chess.game import Game
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 
 def test_board_setup_from_fen(starting_game: Game):
@@ -31,3 +38,15 @@ def test_board_setup_from_fen_with_halfmove_clock(starting_game: Game):
 
 def test_board_setup_from_fen_with_fullmove_number(starting_game: Game):
     assert starting_game.fullmove_number == "1"
+
+
+@pytest.mark.parametrize("row, col, expected_moves", [
+    (7, 8, [(6, 8), (5, 8)]),
+    (8, 8, []),
+    (8, 7, [(6, 6), (6, 8)]),
+    (8, 6, []),
+    (8, 5, []),
+    (8, 4, []),
+], ids=["pawn", "rook", "knight", "bishop", "queen", "king"])
+def test_board_get_legal_moves(starting_game: Game, row, col, expected_moves):
+    assert set(starting_game.get_legal_moves(row, col)) == set(expected_moves)
