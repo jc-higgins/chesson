@@ -20,7 +20,7 @@ class Game:
             -1: []
         }
 
-    def get_piece_locations(self, player):
+    def get_piece_locations(self, player: int):
         locations = []
         if player in ["w", "b"]:
             player = self.player_key[player]
@@ -125,7 +125,7 @@ class Game:
     def get_legal_moves_for_king(self, row: int, col: int) -> list[tuple[int, int]]:
         return []
     
-    def make_move(self, start_loc, end_loc):
+    def make_move(self, start_loc: tuple[int], end_loc: tuple[int]):
         
         piece = self.board.get_piece_in_location(*start_loc)
 
