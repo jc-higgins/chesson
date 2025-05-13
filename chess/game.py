@@ -13,6 +13,21 @@ class Game:
         self.en_passant = fen.get_en_passant()
         self.halfmove_clock = fen.get_halfmove_clock()
         self.fullmove_number = fen.get_fullmove_number()
+        self.current_player = "w"
+
+    def get_piece_locations(self, player):
+        locations = []
+        if player == "w":
+            matches_upper = True
+        else:
+            matches_upper = False
+        for row in range(1, 9):
+            for col in range(1, 9):
+                piece = self.board.board[8-row][col-1]
+                if (piece == piece.upper()) == matches_upper and piece != '.':
+                    locations.append([(row, col), piece])
+
+        return locations
 
     def get_legal_moves(self, row: int, col: int) -> list[tuple[int, int]]:
         piece = self.board.board[8-row][col-1]
@@ -36,6 +51,7 @@ class Game:
             case _:
                 logging.warning(f"No matching case for piece: {piece}")
                 return []
+            
 
     def get_legal_moves_for_pawn(self, row: int, col: int) -> list[tuple[int, int]]:
         legal_moves = []
@@ -102,4 +118,14 @@ class Game:
         
 
 if __name__ == "__main__":
+    game = Game()
+    print(game.board)
+    piece_locations = game.get_piece_locations("w")
+    possible_moves = []
+    for location, piece in piece_locations:
+        possible_moves += [{"start_loc": location, 
+                            "end_loc": end_location,
+                            "piece_type": piece}
+                            for end_location in game.get_legal_moves(*location)]
+    print(possible_moves)
     pass

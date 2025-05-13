@@ -40,7 +40,7 @@ def get_square_from_mouse(pos) -> Optional[tuple[int, int]]:
     print(row, col)
     if col < 1 or col > 8 or row < 1 or row > 8:
         return None
-    elif game.board.board[8-row][col] == '.':
+    elif game.board.board[8-row][col-1] == '.':
         return None
     return row, col
 
