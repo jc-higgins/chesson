@@ -3,6 +3,7 @@ import pygame
 
 from chess.constants import JetBrainsMono, PIECES_DIR
 from chess.game import Game
+from chess.position import Position
 
 # PyGame setup
 pygame.init()
@@ -27,10 +28,18 @@ SELECTED_COLOUR = "#646464"
 HIGHLIGHT_COLOUR = "#FF474C"
 
 # Game State
-selected_square = None # (row, col)
-legal_moves = []
+selected_square: Optional[Position] = None
+legal_moves: list[Position] = []
 
-def get_square_from_mouse(pos) -> Optional[tuple[int, int]]:
+def get_square_from_mouse(pos: tuple[int, int]) -> Optional[Position]:
+    """
+    Get the square from the mouse position.
+    Args:
+        pos: The position of the mouse, fed in from PyGame
+    Returns:
+        The square from the mouse position.
+        None if the mouse is not on the board.
+    """
     x, y = pos
     if not (50 <= x <= 450 and 50 <= y <= 450):
         return None
@@ -40,9 +49,7 @@ def get_square_from_mouse(pos) -> Optional[tuple[int, int]]:
     print(row, col)
     if col < 1 or col > 8 or row < 1 or row > 8:
         return None
-    elif game.board.board[8-row][col] == '.':
-        return None
-    return row, col
+    return game.board.get_position(row, col)
 
 
 for piece_type, filename in {
@@ -67,16 +74,24 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 clicked_square = get_square_from_mouse(event.pos)
+                print(f"{clicked_square=} {selected_square=}")
                 if clicked_square:
-                    row, col = clicked_square
-                    if selected_square == (row, col):
+                    # If selecting the same square, deselect it
+                    if clicked_square == selected_square or clicked_square.piece == '.':
                         selected_square = None
-                    elif game.board.board[8-row][col-1] != '.':
-                        selected_square = (row, col)
-                        legal_moves = game.get_legal_moves(row, col)
-                    else:
+                        legal_moves = []
+
+                    # If selecting a legal move, make the move
+                    elif clicked_square in legal_moves:
+                        game.make_move(selected_square, clicked_square)
                         selected_square = None
-    
+
+                    # If selecting a piece, select it and update the legal moves
+                    elif clicked_square.piece != '.':
+                        selected_square = clicked_square
+                        legal_moves = game.get_legal_moves(selected_square)
+
+
     # Clear the frame
     screen.fill("grey")
 
@@ -98,12 +113,12 @@ while running:
     
     # Selected Square
     if selected_square:
-        row, col = selected_square
+        row, col = selected_square.row, selected_square.col
         y = 50 * (9 - row)
         pygame.draw.rect(screen, SELECTED_COLOUR, pygame.Rect((50*col, y), (50, 50)))
         for move in legal_moves:
-            y_move = 50 * (9 - move[0])
-            pygame.draw.rect(screen, HIGHLIGHT_COLOUR, pygame.Rect((50*move[1], y_move), (50, 50)))
+            y_move = 50 * (9 - move.row)
+            pygame.draw.rect(screen, HIGHLIGHT_COLOUR, pygame.Rect((50*move.col, y_move), (50, 50)))
 
     # Pieces
     for row in range(1, 9):
