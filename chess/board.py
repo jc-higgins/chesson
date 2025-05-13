@@ -1,12 +1,14 @@
 
 
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
+from chess.constants import EMPTY, PIECE
 from chess.fen import STARTING_FEN_STR, Fen
+from chess.position import Position
 
 
 class Board:
-    board: list[list[Literal['p', 'r', 'n', 'b', 'q', 'k', 'P', 'R', 'N', 'B', 'Q', 'K']]]
+    board: list[list[PIECE]]
 
     def __init__(self, fen: Optional[Fen] = None):
         if fen:
@@ -14,6 +16,17 @@ class Board:
         else:
             self.load_start_position()
 
+    def _get_piece(self, pos: Position) -> Union[PIECE, EMPTY]:
+        print(f"Asking for {pos.row} {pos.col}")
+        if pos.is_impossible():
+            return EMPTY
+        return self.board[pos.y][pos.x]
+
+    def get_position(self, row: int, col: int) -> Position:
+        pos = Position(row, col)
+        pos.piece = self._get_piece(pos)
+        return pos 
+    
     def load_start_position(self):
         self.load_fen(Fen(STARTING_FEN_STR))
 
