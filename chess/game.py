@@ -14,19 +14,31 @@ class Game:
         self.en_passant = fen.get_en_passant()
         self.halfmove_clock = fen.get_halfmove_clock()
         self.fullmove_number = fen.get_fullmove_number()
-        self.current_player = "w"
+        self.player_key = {"w":1, "b":-1}
+        self.current_player = 1
+        self.captured = {
+            1: [],
+            -1: []
+        }
 
     def get_piece_locations(self, player):
         locations = []
-        if player == "w":
+        if player in ["w", "b"]:
+            player = self.player_key[player]
+
+        if player == 1:
             matches_upper = True
-        else:
+        elif player == -1:
             matches_upper = False
+        else:
+            logging.warning("player format is not valid. use value in (-1, 1)")
+            return []
+        
         for row in range(1, 9):
             for col in range(1, 9):
-                piece = self.board.board[8-row][col-1]
+                piece = self.board.get_piece_in_location(row, col)
                 if (piece == piece.upper()) == matches_upper and piece != '.':
-                    locations.append([(row, col), piece])
+                    locations.append(((row, col), piece))
 
         return locations
 
@@ -120,17 +132,42 @@ class Game:
 
     def get_legal_moves_for_king(self, pos: Position) -> list[Position]:
         return []
+    
+    def make_move(self, start_loc, end_loc):
+        
+        piece = self.board.get_piece_in_location(*start_loc)
+
+        if (start_loc, piece) not in self.get_piece_locations(self.current_player):
+            logging.warning(f"no valid piece in origin square {start_loc}")
+            return
+        
+        legal_spaces = self.get_legal_moves(*start_loc)
+        if end_loc not in legal_spaces:
+            logging.warning(f"the indicated piece cannot move to the indicated square")
+            return
+        
+        
+        if self.board.get_piece_in_location(*end_loc) != ".":
+            self.captured[-1*self.current_player].append(self.board.get_piece_in_location(*end_loc))
+        self.board.change_piece_in_location(*end_loc, piece)
+        self.board.change_piece_in_location(*start_loc, ".")
+
+        self.current_player *= -1
+        
+        
 
 
 if __name__ == "__main__":
     game = Game()
     print(game.board)
-    piece_locations = game.get_piece_locations("w")
+    piece_locations = game.get_piece_locations(game.current_player)
     possible_moves = []
     for location, piece in piece_locations:
         possible_moves += [{"start_loc": location, 
-                            "end_loc": end_location,
-                            "piece_type": piece}
+                            "end_loc": end_location}
                             for end_location in game.get_legal_moves(*location)]
     print(possible_moves)
+
+    game.make_move(**possible_moves[0])
+    print(game.board)
     pass

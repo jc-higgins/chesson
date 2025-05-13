@@ -49,6 +49,12 @@ class Board:
             s += ''.join(row) + '\n'
         s += "========"
         return s
+    
+    def get_piece_in_location(self, row, col):
+        return self.board[8-row][col-1]
+    
+    def change_piece_in_location(self, row, col, piece):
+        self.board[8-row][col-1] = piece
 
 if __name__ == "__main__":
     board = Board()
