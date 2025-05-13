@@ -37,6 +37,10 @@ class Position:
     @property
     def y(self) -> int:
         return self._y
+    
+    @property
+    def pos(self) -> tuple[int]:
+        return (self._row, self._col)
 
     @property
     def piece(self) -> int:
@@ -55,5 +59,8 @@ class Position:
         if pos1 is None or pos2 is None:
             return False
         elif pos1.col == pos2.col and pos1.row == pos2.row:
-            return True
+            if pos1.piece and pos2.piece and pos1.piece != pos2.piece:
+                return False
+            else:
+                return True
         return False
