@@ -49,7 +49,9 @@ def get_square_from_mouse(pos: tuple[int, int]) -> Optional[Position]:
     print(row, col)
     if col < 1 or col > 8 or row < 1 or row > 8:
         return None
-    return game.board.get_position(row, col)
+    elif game.board.board[8-row][col-1] == '.':
+        return None
+    return row, col
 
 
 for piece_type, filename in {
