@@ -46,7 +46,6 @@ def get_square_from_mouse(pos: tuple[int, int]) -> Optional[Position]:
 
     col = (x) // SQUARE_SIZE
     row = 9 - ((y) // SQUARE_SIZE)
-    print(row, col)
     if col < 1 or col > 8 or row < 1 or row > 8:
         return None
     return game.board.get_position(row, col)

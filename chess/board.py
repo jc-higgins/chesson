@@ -49,6 +49,9 @@ class Board:
             s += ''.join(row) + '\n'
         s += "========"
         return s
+    
+    def change_piece_in_location(self, pos: Position):
+        self.board[pos.y][pos.x] = pos.piece
 
 if __name__ == "__main__":
     board = Board()
