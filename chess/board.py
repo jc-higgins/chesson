@@ -51,7 +51,7 @@ class Board:
         return s
     
     def change_piece_in_location(self, pos: Position):
-        self.board[8-pos.row][pos.col-1] = pos.piece
+        self.board[pos.y][pos.x] = pos.piece
 
 if __name__ == "__main__":
     board = Board()
