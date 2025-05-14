@@ -21,24 +21,21 @@ class Game:
             -1: []
         }
 
-    def get_piece_locations(self, player: int):
-        locations = []
-        if player in ["w", "b"]:
-            player = self.player_key[player]
+    def piece_matches_player(self, pos: Position, player: Optional[int] = None) -> bool:
+        if player is None:
+            player = self.current_player
+        matches_upper = player == 1
+        if (pos.piece == pos.piece.upper()) == matches_upper and pos.piece != '.':
+            return True
+        return False
 
-        if player == 1:
-            matches_upper = True
-        elif player == -1:
-            matches_upper = False
-        else:
-            logging.warning("player format is not valid. use value in (-1, 1)")
-            return []
-        
+    def get_piece_locations(self, player: int) -> list[Position]:
+        locations = []
         for row in range(1, 9):
             for col in range(1, 9):
-                position = self.board.get_position(row, col)
-                if (position.piece == position.piece.upper()) == matches_upper and position.piece != '.':
-                    locations.append(position)
+                pos = self.board.get_position(row, col)
+                if self.piece_matches_player(pos, player):
+                    locations.append(pos)
 
         return locations
 

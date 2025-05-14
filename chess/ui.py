@@ -87,8 +87,9 @@ while running:
 
                     # If selecting a piece, select it and update the legal moves
                     elif clicked_square.piece != '.':
-                        selected_square = clicked_square
-                        legal_moves = game.get_legal_moves(selected_square)
+                        if game.piece_matches_player(clicked_square):
+                            selected_square = clicked_square
+                            legal_moves = game.get_legal_moves(selected_square)
 
 
     # Clear the frame
