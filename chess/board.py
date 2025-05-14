@@ -50,9 +50,6 @@ class Board:
         s += "========"
         return s
     
-    def get_piece_in_location(self, pos: Position):
-        return self.board[8-pos.row][pos.col-1]
-    
     def change_piece_in_location(self, pos: Position):
         self.board[8-pos.row][pos.col-1] = pos.piece
 

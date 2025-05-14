@@ -36,9 +36,9 @@ class Game:
         
         for row in range(1, 9):
             for col in range(1, 9):
-                piece = self.board.get_piece_in_location(Position(row, col))
-                if (piece == piece.upper()) == matches_upper and piece != '.':
-                    locations.append(Position(row, col, piece=piece))
+                position = self.board.get_position(row, col)
+                if (position.piece == position.piece.upper()) == matches_upper and position.piece != '.':
+                    locations.append(position)
 
         return locations
 
@@ -143,8 +143,8 @@ class Game:
             logging.warning(f"the indicated piece cannot move to the indicated square")
             return
         
-        if self.board.get_piece_in_location(end_pos) != ".":
-            self.captured[-1*self.current_player].append(self.board.get_piece_in_location(end_pos))
+        if end_pos.piece != ".":
+            self.captured[-1*self.current_player].append(end_pos.piece)
 
         
         abandoned_pos = Position(start_pos.row, start_pos.col, ".")
