@@ -37,10 +37,6 @@ class Position:
     @property
     def y(self) -> int:
         return self._y
-    
-    @property
-    def pos(self) -> tuple[int]:
-        return (self._row, self._col)
 
     @property
     def piece(self) -> int:
