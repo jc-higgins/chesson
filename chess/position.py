@@ -41,6 +41,10 @@ class Position:
     @property
     def piece(self) -> int:
         return self._piece
+    
+    @property
+    def algebraic(self) -> str:
+        return chr(96+self._col)+str(self._row)
 
     @piece.setter
     def piece(self, piece: Union[PIECE, EMPTY]) -> None:
