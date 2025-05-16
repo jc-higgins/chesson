@@ -14,12 +14,35 @@ from chess.pieces import (
     Queen,
     Empty
 )
+from chess.pieces import (
+    Pawn,
+    Rook,
+    Knight,
+    Bishop,
+    King,
+    Queen,
+    Empty
+)
 
 
 class Board:
     board: list[list[PIECE]]
 
     def __init__(self, fen: Optional[Fen] = None):
+        self.piece_key = {
+            "p": Pawn(-1),
+            "P": Pawn(1),
+            "r": Rook(-1),
+            "R": Rook(1),
+            "n": Knight(-1),
+            "N": Knight(1),
+            "b": Bishop(-1),
+            "B": Bishop(1),
+            "q": Queen(-1),
+            "Q": Queen(1),
+            "k": King(-1),
+            "K": King(1),
+        }
         self.piece_key = {
             "p": Pawn(-1),
             "P": Pawn(1),
@@ -61,7 +84,9 @@ class Board:
             for token in tokens:
                 if token.isnumeric():
                     row += [Empty()] * int(token)
+                    row += [Empty()] * int(token)
                 else:
+                    row.append(self.piece_key[token])
                     row.append(self.piece_key[token])
             board.append(row)
         self.board = board
