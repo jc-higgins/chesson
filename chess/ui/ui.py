@@ -86,10 +86,10 @@ class UI:
                     self.selected_square = None
 
                 # If selecting a piece, select it and update the legal moves
-                elif clicked_square.piece != '.':
+                elif clicked_square.piece.piece_str != '.':
                     if self.game.piece_matches_player(clicked_square):
                         self.selected_square = clicked_square
-                        self.legal_moves = self.game.get_legal_moves(self.selected_square)
+                        self.legal_moves = self.selected_square.piece.get_legal_moves(self.game.board, self.selected_square)
 
 
     # ======= MAIN GAME LOOP =======
@@ -134,8 +134,8 @@ class UI:
             for row in range(1, 9):
                 for col in range(1, 9):
                     piece = self.game.board.board[8-row][col-1]
-                    if piece != '.':
-                        piece_img = self.piece_images[piece]
+                    if piece.piece_str != '.':
+                        piece_img = self.piece_images[piece.piece_str]
                         x = 50*col + (SQUARE_SIZE - PIECE_SIZE)//2
                         y = 50 * (9 - row) + (SQUARE_SIZE - PIECE_SIZE)//2
                         self.screen.blit(piece_img, (x, y))
