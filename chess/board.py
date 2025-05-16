@@ -5,12 +5,35 @@ from typing import Literal, Optional, Union
 from chess.constants import EMPTY, PIECE
 from chess.fen import STARTING_FEN_STR, Fen
 from chess.position import Position
+from chess.pieces import (
+    Pawn,
+    Rook,
+    Knight,
+    Bishop,
+    King,
+    Queen,
+    Empty
+)
 
 
 class Board:
     board: list[list[PIECE]]
 
     def __init__(self, fen: Optional[Fen] = None):
+        self.piece_key = {
+            "p": Pawn(-1),
+            "P": Pawn(1),
+            "r": Rook(-1),
+            "R": Rook(1),
+            "n": Knight(-1),
+            "N": Knight(1),
+            "b": Bishop(-1),
+            "B": Bishop(1),
+            "q": Queen(-1),
+            "Q": Queen(1),
+            "k": King(-1),
+            "K": King(1),
+        }
         if fen:
             self.load_fen(fen)
         else:
@@ -37,16 +60,16 @@ class Board:
             row = []
             for token in tokens:
                 if token.isnumeric():
-                    row += ['.'] * int(token)
+                    row += [Empty()] * int(token)
                 else:
-                    row.append(token)
+                    row.append(self.piece_key[token])
             board.append(row)
         self.board = board
 
     def __str__(self) -> str:
         s = "========\n"
         for row in self.board:
-            s += ''.join(row) + '\n'
+            s += ''.join([piece.piece_str for piece in row]) + '\n'
         s += "========"
         return s
 
