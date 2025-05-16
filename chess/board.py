@@ -40,7 +40,6 @@ class Board:
             self.load_start_position()
 
     def _get_piece(self, pos: Position) -> Union[PIECE, EMPTY]:
-        print(f"Asking for {pos.row} {pos.col}")
         if pos.is_impossible():
             return EMPTY
         return self.board[pos.y][pos.x]
@@ -61,9 +60,7 @@ class Board:
             for token in tokens:
                 if token.isnumeric():
                     row += [Empty()] * int(token)
-                    row += [Empty()] * int(token)
                 else:
-                    row.append(self.piece_key[token])
                     row.append(self.piece_key[token])
             board.append(row)
         self.board = board
