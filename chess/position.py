@@ -41,6 +41,10 @@ class Position:
     @property
     def piece(self) -> int:
         return self._piece
+    
+    @property
+    def algebraic(self) -> str:
+        return chr(96+self._col)+str(self._row)
 
     @piece.setter
     def piece(self, piece: Union[PIECE, EMPTY]) -> None:
@@ -59,4 +63,11 @@ class Position:
                 return False
             else:
                 return True
+            if pos1.piece and pos2.piece and pos1.piece != pos2.piece:
+                return False
+            else:
+                return True
         return False
+    
+    def __str__(self) -> str:
+        return f"{str((self.row, self.col))}, {self.piece.piece_str}"

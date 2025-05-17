@@ -4,6 +4,7 @@ from chess.board import Board
 from chess.fen import STARTING_FEN_STR, Fen
 from chess.exceptions import TurnOrderError
 from chess.position import Position
+from chess.pieces import Empty
 
 
 class Game:
@@ -24,10 +25,8 @@ class Game:
     def piece_matches_player(self, pos: Position, player: Optional[int] = None) -> bool:
         if player is None:
             player = self.current_player
-        matches_upper = player == 1
-        if (pos.piece == pos.piece.upper()) == matches_upper and pos.piece != '.':
-            return True
-        return False
+
+        return pos.piece.colour == player
 
     def get_piece_locations(self, player: int) -> list[Position]:
         locations = []
@@ -135,20 +134,21 @@ class Game:
             logging.warning(f"no valid piece in origin square {start_pos}")
             return
         
-        legal_spaces = self.get_legal_moves(start_pos)
+        legal_spaces = start_pos.piece.get_legal_moves(self.board, start_pos)
         if end_pos not in legal_spaces:
             logging.warning(f"the indicated piece cannot move to the indicated square")
             return
         
-        if end_pos.piece != ".":
+        if end_pos.piece.piece_str != ".":
             self.captured[-1*self.current_player].append(end_pos.piece)
 
         
-        abandoned_pos = Position(start_pos.row, start_pos.col, ".")
+        abandoned_pos = Position(start_pos.row, start_pos.col, Empty())
         entered_pos = Position(end_pos.row, end_pos.col, start_pos.piece)
-        print("end_pos", end_pos.pos, end_pos.piece)
+        print("end_pos", end_pos.row, end_pos.col, end_pos.piece)
         self.board.change_piece_in_location(abandoned_pos)
         self.board.change_piece_in_location(entered_pos)
+        print(self.board)
 
         self.current_player *= -1
         
@@ -159,14 +159,14 @@ if __name__ == "__main__":
     game = Game()
     print(game.board)
     piece_locations = game.get_piece_locations(game.current_player)
-    print([(i.pos, i.piece) for i in piece_locations])
+    print([(i.row, i.col, i.piece.piece_str) for i in piece_locations])
     possible_moves = []
     for piece_location in piece_locations:
         possible_moves += [{"start_pos": piece_location, 
                             "end_pos": end_location}
-                            for end_location in game.get_legal_moves(piece_location)]
+                            for end_location in piece_location.piece.get_legal_moves(game.board, piece_location)]
 
-
+    print(possible_moves[0])
     game.make_move(**possible_moves[0])
     print(game.board)
     pass
