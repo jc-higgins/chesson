@@ -1,12 +1,11 @@
-
-
+import logging
 from typing import Literal, Optional, Union
 
 from chess.constants import EMPTY, PIECE
 from chess.fen import STARTING_FEN_STR, Fen
-from chess.position import Position
 from chess.pieces import (
     Pawn,
+    Piece,
     Rook,
     Knight,
     Bishop,
@@ -17,7 +16,8 @@ from chess.pieces import (
 
 
 class Board:
-    board: list[list[PIECE]]
+    board: list[list[Union[Piece, EMPTY]]]
+    piece_key: dict[str, PIECE]
 
     def __init__(self, fen: Optional[Fen] = None):
         self.piece_key = {
@@ -33,21 +33,22 @@ class Board:
             "Q": Queen(1),
             "k": King(-1),
             "K": King(1),
+            ".": Empty()
         }
         if fen:
             self.load_fen(fen)
         else:
             self.load_start_position()
 
-    def _get_piece(self, pos: Position) -> Union[PIECE, EMPTY]:
-        if pos.is_impossible():
-            return EMPTY
-        return self.board[pos.y][pos.x]
+    def get_piece(self, row: int, col: int) -> Union[Piece, Empty]:
+        if self.is_impossible(row, col):
+            return Empty()
+        return self.board[row-1][col-1]
 
-    def get_position(self, row: int, col: int) -> Position:
-        pos = Position(row, col)
-        pos.piece = self._get_piece(pos)
-        return pos 
+    def is_impossible(self, col: int, row: int) -> bool:
+        if row > 8 or row < 1 or col > 8 or col < 1:
+            return True
+        return False
     
     def load_start_position(self):
         self.load_fen(Fen(STARTING_FEN_STR))
@@ -61,20 +62,21 @@ class Board:
                 if token.isnumeric():
                     row += [Empty()] * int(token)
                 else:
-                    row.append(self.piece_key[token])
+                    piece = self.piece_key[token]
+                    logging.info(f"Loading piece {token} with colour {piece.colour}")
+                    row.append(piece)
             board.append(row)
         self.board = board
 
     def __str__(self) -> str:
         s = "========\n"
         for row in self.board:
-            print(row)
             s += ''.join([piece.piece_str for piece in row]) + '\n'
         s += "========"
         return s
     
-    def change_piece_in_location(self, pos: Position):
-        self.board[pos.y][pos.x] = pos.piece
+    def change_piece_in_location(self, row: int, col: int, piece: Piece):
+        self.board[row-1][col-1] = piece
 
 if __name__ == "__main__":
     board = Board()
