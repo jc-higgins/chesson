@@ -1,9 +1,6 @@
-# Load and scale piece images
-from typing import Optional
-from chess.position import Position
-
+# UI Constants
 SQUARE_SIZE = 50
-PIECE_SIZE = SQUARE_SIZE - 5  # Piece size slightly smaller than square
+PIECE_SIZE = 40
 
 # Colours
 LIGHT_SQUARE = "white"
