@@ -1,4 +1,5 @@
 import logging
+import logging
 from typing import Literal, Optional, Union
 
 from chess.constants import EMPTY, PIECE
@@ -40,10 +41,10 @@ class Board:
         else:
             self.load_start_position()
 
-    def _get_piece(self, pos: Position) -> Union[PIECE, EMPTY]:
-        if pos.is_impossible():
-            return EMPTY
-        return self.board[pos.y][pos.x]
+    def get_piece(self, row: int, col: int) -> Union[Piece, Empty]:
+        if self.is_impossible(row, col):
+            return Empty()
+        return self.board[row-1][col-1]
 
     def is_impossible(self, col: int, row: int) -> bool:
         if row > 8 or row < 1 or col > 8 or col < 1:
@@ -65,16 +66,21 @@ class Board:
                     piece = self.piece_key[token]
                     logging.info(f"Loading piece {token} with colour {piece.colour}")
                     row.append(piece)
+                    piece = self.piece_key[token]
+                    logging.info(f"Loading piece {token} with colour {piece.colour}")
+                    row.append(piece)
             board.append(row)
-        self.board = board
+        self.board = board[::-1]
 
     def __str__(self) -> str:
         s = "========\n"
         for row in self.board:
             s += ''.join([piece.piece_str for piece in row]) + '\n'
         s += "========"
-        return s
+        return s[::-1]
     
+    def change_piece_in_location(self, row: int, col: int, piece: Piece):
+        self.board[row-1][col-1] = piece
     def change_piece_in_location(self, row: int, col: int, piece: Piece):
         self.board[row-1][col-1] = piece
 

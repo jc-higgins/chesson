@@ -1,9 +1,10 @@
 # ======= IMPORTS =======
 import logging
+import logging
 from typing import Optional
 import pygame
 
-from chess.constants import EMPTY, JetBrainsMono, PIECES_DIR, POSITION
+from chess.constants import JetBrainsMono, PIECES_DIR, POSITION
 from chess.game import Game
 from chess.pieces import Empty
 from chess.pieces import Empty
@@ -73,7 +74,8 @@ class UI:
         row = 9 - ((y) // SQUARE_SIZE)
         if col < 1 or col > 8 or row < 1 or row > 8:
             return None
-        return (col, row)
+        print(row, col)
+        return (row, col)
 
 
     def handle_mouse_click(self, event: pygame.event.Event) -> None:
@@ -81,22 +83,29 @@ class UI:
             clicked_square = self.get_square_from_mouse(event.pos)
             if clicked_square:
                 # If selecting the same square, deselect it
-                if clicked_square == self.selected_square or self.game.board._get_piece(*clicked_square).piece_str == '.':
+                clicked_piece = self.game.board.get_piece(*clicked_square)
+                print(clicked_piece)
+                print(f"Clicked square: {clicked_square}")
+                print(f"Selected square: {self.selected_square}")
+                if clicked_square == self.selected_square:
+                    print(f"Selected square, piece is {clicked_piece}")
                     self.selected_square = None
                     self.legal_moves = []
 
                 # If selecting a legal move, make the move
                 elif clicked_square in self.legal_moves:
                     print(f"Selected legal move, piece is {clicked_piece}")
+                    print(f"Selected legal move, piece is {clicked_piece}")
                     self.game.make_move(self.selected_square, clicked_square)
                     self.selected_square = None
 
                 # If selecting a piece, select it and update the legal moves
-                elif self.game.board._get_piece(*clicked_square).piece_str != '.':
-                    if self.game.piece_matches_player(self.game.board._get_piece(*clicked_square)):
+                elif not isinstance(self.game.board.get_piece(*clicked_square), Empty):
+                    print(f"Not an empty square, piece is {clicked_piece}")
+                    print(f"Does colour match? {self.game.piece_matches_player(clicked_piece)}")
+                    if self.game.piece_matches_player(clicked_piece):
                         self.selected_square = clicked_square
-                        self.legal_moves = self.game.get_legal_moves(self.selected_square)
-                        self.legal_moves = self.game.get_legal_moves(self.selected_square)
+                        self.legal_moves = self.game.get_legal_moves(*self.selected_square)
 
 
     # ======= MAIN GAME LOOP =======
@@ -125,32 +134,37 @@ class UI:
             for row in range(1, 9):
                 for col in range(1, 9):
                     colour = "white" if ((row + col)%2==0) else "#A9A9A9"
-                    y = 50 * (9 - row)
-                    pygame.draw.rect(self.screen, colour, pygame.Rect((50*col, y), (50, 50)))
+                    y = 50 * row
+                    x = 50 * col
+                    pygame.draw.rect(self.screen, colour, pygame.Rect((x, y), (50, 50)))
             
             # Selected Square
             if self.selected_square:
-                col, row = self.selected_square
+                row, col = self.selected_square
                 y = 50 * (9 - row)
+                x = 50 * col
                 pygame.draw.rect(self.screen, SELECTED_COLOUR, pygame.Rect((50*col, y), (50, 50)))
                 for move in self.legal_moves:
-                    col, row = move
+                    row, col = move
                     y_move = 50 * (9 - row)
-                    pygame.draw.rect(self.screen, HIGHLIGHT_COLOUR, pygame.Rect((50*col, y_move), (50, 50)))
+                    x_move = 50 * col
+                    pygame.draw.rect(self.screen, HIGHLIGHT_COLOUR, pygame.Rect((x_move, y_move), (50, 50)))
 
             # Pieces
             for row in range(1, 9):
                 for col in range(1, 9):
-                    piece = self.game.board.get_piece(col, row)
+                    # Invert the row to match the board
+                    piece = self.game.board.get_piece(row, col)
                     if not isinstance(piece, Empty):
                         piece_img = self.piece_images[piece.piece_str]
                         x = 50*col + (SQUARE_SIZE - PIECE_SIZE)//2
-                        y = 50 * (9 - row) + (SQUARE_SIZE - PIECE_SIZE)//2
+                        y = 50*(9-row) + (SQUARE_SIZE - PIECE_SIZE)//2
                         self.screen.blit(piece_img, (x, y))
+
 
             # Coordinates
             for row in range(1, 9):
-                y = 38 + 50 * (9 - row)
+                y = 38 + 50 *row
                 text = self.font.render(str(row), True, "black")
                 self.screen.blit(text, (40, y))
             
