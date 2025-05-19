@@ -1,8 +1,12 @@
 from abc import abstractmethod
 from chess.constants import POSITION
+from abc import abstractmethod
+from chess.constants import POSITION
 
 
 class Piece:
+    colour: int
+    piece_str: str
     colour: int
     piece_str: str
 
@@ -18,12 +22,21 @@ class Piece:
         ...
 
 
+    @abstractmethod
+    def get_legal_moves(self, board, pos: POSITION) -> list[POSITION]:
+        ...
+
+
 class Knight(Piece):
 
     def __init__(self, colour):
         super().__init__( colour)
+        super().__init__( colour)
         self.piece_str = self.func("n")
 
+    def get_legal_moves(self, board, pos: POSITION):
+        row, col = pos
+        legal_moves: list[POSITION] = []
     def get_legal_moves(self, board, pos: POSITION):
         row, col = pos
         legal_moves: list[POSITION] = []
@@ -36,12 +49,21 @@ class Knight(Piece):
             (row+1, col-2),
             (row-1, col+2),
             (row-1, col-2),
+            (row+2, col+1),
+            (row+2, col-1),
+            (row-2, col+1),
+            (row-2, col-1),
+            (row+1, col+2),
+            (row+1, col-2),
+            (row-1, col+2),
+            (row-1, col-2),
         ]
         
         for square in possible_moves:
             if board.is_impossible(*square):
+            if board.is_impossible(*square):
                 continue
-            piece = board.get_piece(*square)
+            piece = board._get_piece(*square)
             if piece.colour == self.colour:
                 continue
             else:
@@ -49,25 +71,32 @@ class Knight(Piece):
         return legal_moves
 
 
+
 class Pawn(Piece):
     def __init__(self, colour):
+        super().__init__( colour)
         super().__init__( colour)
         self.piece_str = self.func("p")
 
     def get_legal_moves(self, board, pos: POSITION):
         row, col = pos
+    def get_legal_moves(self, board, pos: POSITION):
+        row, col = pos
         legal_moves = []
         square_1 = (row+self.colour, col)
         square_2 = (row+2*self.colour, col)
+        square_1 = (row+self.colour, col)
+        square_2 = (row+2*self.colour, col)
 
-        if not board.is_impossible(*square_1) and board.get_piece(*square_1).piece_str == ".":
+        if not board.is_impossible(*square_1) and board._get_piece(*square_1).piece_str == ".":
             legal_moves.append(square_1)
-            if not board.is_impossible(*square_2) and board.get_piece(*square_2).piece_str == "." and 2*row ==  (9-5*self.colour):
+            if not board.is_impossible(*square_2) and board._get_piece(*square_2).piece_str == "." and 2*row ==  (9-5*self.colour):
                 legal_moves.append(square_2)
 
         attack_squares = [(row+self.colour, col+1), (row+self.colour, col-1)]
+        attack_squares = [(row+self.colour, col+1), (row+self.colour, col-1)]
         for square in attack_squares:
-            if not board.is_impossible(*square) and board.get_piece(*square).colour == -self.colour:
+            if not board.is_impossible(*square) and board._get_piece(*square).colour == -self.colour:
                 legal_moves.append(square)
             
 
@@ -78,8 +107,11 @@ class Pawn(Piece):
 class Rook(Piece):
     def __init__(self, colour):
         super().__init__( colour)
+        super().__init__( colour)
         self.piece_str = self.func("r")
 
+    def get_legal_moves(self, board, pos: POSITION):
+        row, col = pos
     def get_legal_moves(self, board, pos: POSITION):
         row, col = pos
         legal_moves = []
@@ -92,10 +124,13 @@ class Rook(Piece):
                 steps += 1
                 square = (row+steps*dir[0], col+steps*dir[1])
                 if board.is_impossible(*square):
+                square = (row+steps*dir[0], col+steps*dir[1])
+                if board.is_impossible(*square):
                     break
-                piece = board.get_piece(*square)
+                piece = board._get_piece(*square)
                 if piece.colour == self.colour:
                     break
+                elif piece.colour == -self.colour:
                 elif piece.colour == -self.colour:
                     legal_moves.append(square)
                     break
@@ -108,8 +143,11 @@ class Rook(Piece):
 class Bishop(Piece):
     def __init__(self, colour):
         super().__init__( colour)
+        super().__init__( colour)
         self.piece_str = self.func("b")
 
+    def get_legal_moves(self, board, pos: POSITION):
+        row, col = pos
     def get_legal_moves(self, board, pos: POSITION):
         row, col = pos
         legal_moves = []
@@ -122,10 +160,13 @@ class Bishop(Piece):
                 steps += 1
                 square = (row+steps*dir[0], col+steps*dir[1])
                 if board.is_impossible(*square):
+                square = (row+steps*dir[0], col+steps*dir[1])
+                if board.is_impossible(*square):
                     break
-                piece = board.get_piece(*square)
+                piece = board._get_piece(*square)
                 if piece.colour == self.colour:
                     break
+                elif piece.colour == -self.colour:
                 elif piece.colour == -self.colour:
                     legal_moves.append(square)
                     break
@@ -135,11 +176,15 @@ class Bishop(Piece):
         return legal_moves
 
 
+
 class Queen(Piece):
     def __init__(self, colour):
         super().__init__( colour)
+        super().__init__( colour)
         self.piece_str = self.func("q")
     
+    def get_legal_moves(self, board, pos: POSITION):
+        row, col = pos
     def get_legal_moves(self, board, pos: POSITION):
         row, col = pos
         legal_moves = []
@@ -152,10 +197,13 @@ class Queen(Piece):
                 steps += 1
                 square = (row+steps*dir[0], col+steps*dir[1])
                 if board.is_impossible(*square):
+                square = (row+steps*dir[0], col+steps*dir[1])
+                if board.is_impossible(*square):
                     break
-                piece = board.get_piece(*square)
+                piece = board._get_piece(*square)
                 if piece.colour == self.colour:
                     break
+                elif piece.colour == -self.colour:
                 elif piece.colour == -self.colour:
                     legal_moves.append(square)
                     break
@@ -165,11 +213,15 @@ class Queen(Piece):
         return legal_moves
 
 
+
 class King(Piece):
     def __init__(self, colour):
         super().__init__( colour)
+        super().__init__( colour)
         self.piece_str = self.func("k")
 
+    def get_legal_moves(self, board, pos: POSITION):
+        row, col = pos
     def get_legal_moves(self, board, pos: POSITION):
         row, col = pos
         legal_moves = []
@@ -179,10 +231,13 @@ class King(Piece):
         for dir in directions:
             square = (row+dir[0], col+dir[1])
             if board.is_impossible(*square):
+            square = (row+dir[0], col+dir[1])
+            if board.is_impossible(*square):
                 continue
-            piece = board.get_piece(*square)
+            piece = board._get_piece(*square)
             if piece.colour == self.colour:
                 continue
+            elif piece.colour == -self.colour:
             elif piece.colour == -self.colour:
                 legal_moves.append(square)
                 continue
@@ -191,6 +246,8 @@ class King(Piece):
 
         return legal_moves
 
+
+class Empty(Piece):
 
 class Empty(Piece):
     def __init__(self):

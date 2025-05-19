@@ -25,24 +25,25 @@ class Game:
     def piece_matches_player(self, piece: Piece, player: Optional[int] = None) -> bool:
         if player is None:
             player = self.current_player
-        
-        logging.info(f"Checking piece {piece.piece_str} (colour={piece.colour}) against player {player}")
-        return piece.colour == player
+
+        return pos.piece.colour == player
 
     def get_piece_locations(self, player: int) -> list[POSITION]:
         locations = []
         for row in range(1, 9):
             for col in range(1, 9):
-                if self.piece_matches_player(self.board.get_piece(row, col), player):
-                    locations.append((col,row))
+                pos = self.board.get_position(row, col)
+                if self.piece_matches_player(pos, player):
+                    locations.append(pos)
 
         return locations
 
     def get_legal_moves(self, pos: POSITION) -> list[POSITION]:
-        piece = self.board.get_piece(*pos)
+        piece = self.board._get_piece(*pos)
         logging.warning(f"Piece: {piece}")
         return piece.get_legal_moves(self.board, pos)
     
+    def make_move(self, start_pos: POSITION, end_pos: POSITION):
     def make_move(self, start_pos: POSITION, end_pos: POSITION):
         if start_pos not in self.get_piece_locations(self.current_player):
             logging.warning(f"no valid piece in origin square {start_pos}")
@@ -53,13 +54,13 @@ class Game:
             logging.warning(f"the indicated piece cannot move to the indicated square")
             return
         
-        start_piece = self.board.get_piece(*start_pos)
-        end_piece = self.board.get_piece(*end_pos)
+        start_piece = self.board._get_piece(*start_pos)
+        end_piece = self.board._get_piece(*end_pos)
         
         if end_piece.piece_str != ".":
             self.captured[-1*self.current_player].append(end_piece)
         elif end_pos == self.en_passant and start_piece.piece_str.lower() == "p":
-            self.captured[-1*self.current_player].append(self.board.get_piece(*self.en_passant))
+            self.captured[-1*self.current_player].append(self.board._get_piece(*self.en_passant))
 
         self.board.change_piece_in_location(*start_pos, Empty())
         self.board.change_piece_in_location(*end_pos, start_piece)
