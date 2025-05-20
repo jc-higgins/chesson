@@ -4,7 +4,7 @@ from chess.board import Board
 from chess.constants import POSITION
 from chess.fen import STARTING_FEN_STR, Fen
 from chess.exceptions import TurnOrderError
-from chess.pieces import Empty, Piece
+from chess.pieces import Empty, Piece, Pawn, Knight, Rook, Bishop, Queen, King
 from chess.move import Move
 from copy import deepcopy
 
@@ -23,23 +23,25 @@ class Game:
         self.captured = {1: [], -1: []}
         self.check_moves = []
 
-    def check_if_in_check(self, player: Optional[int] = None, move: Optional[Move] = None):
+    def check_if_in_check(
+        self, player: Optional[int] = None, move: Optional[Move] = None
+    ):
         if not player:
             player = self.current_player
         checking_moves = []
         locations = self.get_piece_locations(-player)
         for location in locations:
-            legal_moves = self.get_legal_moves(*location, ignore_check = True)
+            legal_moves = self.get_legal_moves(*location, ignore_check=True)
             for legal_move in legal_moves:
                 if self.board.get_piece(*legal_move.end_pos).name == "King":
-                    checking_moves.append(Move(location, legal_move, self.board.get_piece(*location)))
-        
+                    checking_moves.append(
+                        Move(location, legal_move, self.board.get_piece(*location))
+                    )
+
         if len(checking_moves) > 0:
             return True
         else:
             return False
-
-
 
     def piece_matches_player(self, piece: Piece, player: Optional[int] = None) -> bool:
         if player is None:
@@ -59,28 +61,33 @@ class Game:
 
         return locations
 
-    def get_legal_moves(self, row, col, ignore_check = False) -> list[Move]:
+    def get_legal_moves(self, row, col, ignore_check=False) -> list[Move]:
         legal_moves: list[Move] = []
         piece = self.board.get_piece(row, col)
         match piece.name:
             case "Pawn":
-                possible_legal_moves = self.get_legal_moves_pawn(row, col, piece.colour)
+                poss_legal_moves = self.get_legal_moves_pawn(row, col, piece.colour)
             case "Knight":
-                possible_legal_moves = self.get_legal_moves_knight(row, col, piece.colour)
+                poss_legal_moves = self.get_legal_moves_knight(
+                    row, col, piece.colour
+                )
             case "Rook":
-                possible_legal_moves = self.get_legal_moves_rook(row, col, piece.colour)
+                poss_legal_moves = self.get_legal_moves_rook(row, col, piece.colour)
             case "Bishop":
-                possible_legal_moves = self.get_legal_moves_bishop(row, col, piece.colour)
+                poss_legal_moves = self.get_legal_moves_bishop(
+                    row, col, piece.colour
+                )
             case "Queen":
-                possible_legal_moves = self.get_legal_moves_queen(row, col, piece.colour)
+                poss_legal_moves = self.get_legal_moves_queen(
+                    row, col, piece.colour
+                )
             case "King":
-                possible_legal_moves = self.get_legal_moves_king(row, col, piece.colour)
-
+                poss_legal_moves = self.get_legal_moves_king(row, col, piece.colour, ignore_check)
 
         if ignore_check:
-            return possible_legal_moves
+            return poss_legal_moves
         else:
-            for move in possible_legal_moves:
+            for move in poss_legal_moves:
                 temp_game = deepcopy(self)
                 temp_game.make_move(move)
                 in_check = temp_game.check_if_in_check(piece.colour)
@@ -88,9 +95,6 @@ class Game:
                     legal_moves.append(move)
 
             return legal_moves
-
-
-            
 
     def get_legal_moves_knight(self, row: int, col: int, colour: int):
         legal_moves: list[POSITION] = []
@@ -224,7 +228,7 @@ class Game:
 
         return legal_moves
 
-    def get_legal_moves_king(self, row: int, col: int, colour: int):
+    def get_legal_moves_king(self, row: int, col: int, colour: int, ignore_castle: bool = True):
         legal_moves = []
 
         directions = [
@@ -250,6 +254,40 @@ class Game:
                 continue
             else:
                 legal_moves.append(Move((row, col), square))
+
+        # castling
+        if not ignore_castle:
+            if Piece(colour).func("k") in self.castles:
+                safe_to_castle = True
+                for empty_col in range(6, 8):
+                    if self.board.get_piece(row, empty_col).name != "Empty":
+                        safe_to_castle = False
+
+                for king_col in range(5, 8):
+                    temp_board = deepcopy(self)
+                    temp_board.make_move(Move((row, col), (row, king_col)))
+                    if temp_board.check_if_in_check(colour):
+                        safe_to_castle = False
+
+
+                if safe_to_castle:
+                    legal_moves.append(Move((row, col), (row, col + 2), piece=King(colour)))
+
+            if Piece(colour).func("q") in self.castles:
+                safe_to_castle = True
+                for empty_col in range(2, 5):
+                    if self.board.get_piece(row, empty_col).name != "Empty":
+                        safe_to_castle = False
+
+                for king_col in range(3, 6):
+                    temp_board = deepcopy(self)
+                    temp_board.make_move(Move((row, col), (row, king_col)))
+                    if temp_board.check_if_in_check(colour):
+                        safe_to_castle = False
+
+
+                if safe_to_castle:
+                    legal_moves.append(Move((row, col), (row, col - 2), piece=King(colour)))
 
         return legal_moves
 
@@ -278,12 +316,33 @@ class Game:
         else:
             self.en_passant = (-1, -1)
 
+        if start_piece.name == "King":
+            self.castles = [i for i in self.castles if i != start_piece.func("k")]
+            self.castles = [i for i in self.castles if i != start_piece.func("q")]
+        
+        if start_piece.name == "Rook":
+            if start_pos[1] == 1:
+                self.castles = [i for i in self.castles if i != start_piece.func("q")]
+            elif start_pos[1] == 8:
+                self.castles = [i for i in self.castles if i != start_piece.func("k")]
+        
+        if start_piece.name == "King" and abs(start_pos[1] - end_pos[1]) == 2:
+            if end_pos[1] < start_pos[1]:
+                self.board.change_piece_in_location(start_pos[0], 1, Empty())
+                self.board.change_piece_in_location(start_pos[0], 4, Rook(start_piece.colour))
+            elif end_pos[1] > start_pos[1]:
+                self.board.change_piece_in_location(start_pos[0], 8, Empty())
+                self.board.change_piece_in_location(start_pos[0], 6, Rook(start_piece.colour))
+
+
+
+
+
         self.board.change_piece_in_location(*start_pos, Empty())
         self.board.change_piece_in_location(*end_pos, start_piece)
         print(self.board)
 
         self.current_player *= -1
-
 
 
 if __name__ == "__main__":

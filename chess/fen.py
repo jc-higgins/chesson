@@ -12,7 +12,7 @@ class Fen:
         return self.fen_str.split()[1]
 
     def get_castles(self) -> str:
-        return self.fen_str.split()[2]
+        return list(self.fen_str.split()[2])
 
     def get_en_passant(self) -> tuple[int]:
         en_passant_str = self.fen_str.split()[3]

@@ -186,13 +186,13 @@ class UI:
 
             # Coordinates
             for row in range(1, 9):
-                y = 38 + 50 * row
+                y =  488 - 50 * row
                 text = self.font.render(str(row), True, "black")
                 self.screen.blit(text, (40, y))
 
             for col in range(1, 9):
                 x = 50 * col
-                text = self.font.render(chr(47 + col), True, "black")
+                text = self.font.render(chr(96 + col), True, "black")
                 self.screen.blit(text, (x, 451))
 
             # flip() the display to show rendered work
