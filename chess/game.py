@@ -5,6 +5,8 @@ from chess.constants import POSITION
 from chess.fen import STARTING_FEN_STR, Fen
 from chess.exceptions import TurnOrderError
 from chess.pieces import Empty, Piece
+from chess.move import Move
+from copy import deepcopy
 
 
 class Game:
@@ -19,6 +21,25 @@ class Game:
         self.fullmove_number = fen.get_fullmove_number()
         self.player_key = {"w": 1, "b": -1}
         self.captured = {1: [], -1: []}
+        self.check_moves = []
+
+    def check_if_in_check(self, player: Optional[int] = None, move: Optional[Move] = None):
+        if not player:
+            player = self.current_player
+        checking_moves = []
+        locations = self.get_piece_locations(-player)
+        for location in locations:
+            legal_moves = self.get_legal_moves(*location, ignore_check = True)
+            for legal_move in legal_moves:
+                if self.board.get_piece(*legal_move.end_pos).name == "King":
+                    checking_moves.append(Move(location, legal_move, self.board.get_piece(*location)))
+        
+        if len(checking_moves) > 0:
+            return True
+        else:
+            return False
+
+
 
     def piece_matches_player(self, piece: Piece, player: Optional[int] = None) -> bool:
         if player is None:
@@ -38,23 +59,40 @@ class Game:
 
         return locations
 
-    def get_legal_moves(self, row, col):
+    def get_legal_moves(self, row, col, ignore_check = False) -> list[Move]:
+        legal_moves: list[Move] = []
         piece = self.board.get_piece(row, col)
         match piece.name:
             case "Pawn":
-                return self.get_legal_moves_pawn(row, col)
+                possible_legal_moves = self.get_legal_moves_pawn(row, col, piece.colour)
             case "Knight":
-                return self.get_legal_moves_knight(row, col)
+                possible_legal_moves = self.get_legal_moves_knight(row, col, piece.colour)
             case "Rook":
-                return self.get_legal_moves_rook(row, col)
+                possible_legal_moves = self.get_legal_moves_rook(row, col, piece.colour)
             case "Bishop":
-                return self.get_legal_moves_bishop(row, col)
+                possible_legal_moves = self.get_legal_moves_bishop(row, col, piece.colour)
             case "Queen":
-                return self.get_legal_moves_queen(row, col)
+                possible_legal_moves = self.get_legal_moves_queen(row, col, piece.colour)
             case "King":
-                return self.get_legal_moves_king(row, col)
+                possible_legal_moves = self.get_legal_moves_king(row, col, piece.colour)
 
-    def get_legal_moves_knight(self, row: int, col: int):
+
+        if ignore_check:
+            return possible_legal_moves
+        else:
+            for move in possible_legal_moves:
+                temp_game = deepcopy(self)
+                temp_game.make_move(move)
+                in_check = temp_game.check_if_in_check(piece.colour)
+                if not in_check:
+                    legal_moves.append(move)
+
+            return legal_moves
+
+
+            
+
+    def get_legal_moves_knight(self, row: int, col: int, colour: int):
         legal_moves: list[POSITION] = []
         possible_moves = [
             (row + 2, col + 1),
@@ -71,44 +109,44 @@ class Game:
             if self.board.is_impossible(*square):
                 continue
             piece = self.board.get_piece(*square)
-            if piece.colour == self.current_player:
+            if piece.colour == colour:
                 continue
             else:
-                legal_moves.append(square)
+                legal_moves.append(Move((row, col), square))
         return legal_moves
 
-    def get_legal_moves_pawn(self, row: int, col: int):
+    def get_legal_moves_pawn(self, row: int, col: int, colour: int):
         legal_moves = []
-        square_1 = (row + self.current_player, col)
-        square_2 = (row + 2 * self.current_player, col)
+        square_1 = (row + colour, col)
+        square_2 = (row + 2 * colour, col)
 
         if (
             not self.board.is_impossible(*square_1)
             and self.board.get_piece(*square_1).piece_str == "."
         ):
-            legal_moves.append(square_1)
+            legal_moves.append(Move((row, col), square_1))
             if (
                 not self.board.is_impossible(*square_2)
                 and self.board.get_piece(*square_2).piece_str == "."
-                and 2 * row == (9 - 5 * self.current_player)
+                and 2 * row == (9 - 5 * colour)
             ):
-                legal_moves.append(square_2)
+                legal_moves.append(Move((row, col), square_2))
 
         attack_squares = [
-            (row + self.current_player, col + 1),
-            (row + self.current_player, col - 1),
+            (row + colour, col + 1),
+            (row + colour, col - 1),
         ]
         for square in attack_squares:
             if not self.board.is_impossible(*square):
                 if (
-                    self.board.get_piece(*square).colour == -self.current_player
+                    self.board.get_piece(*square).colour == -colour
                     or self.en_passant == square
                 ):
-                    legal_moves.append(square)
+                    legal_moves.append(Move((row, col), square))
 
         return legal_moves
 
-    def get_legal_moves_rook(self, row: int, col: int):
+    def get_legal_moves_rook(self, row: int, col: int, colour: int):
         legal_moves = []
 
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -121,17 +159,17 @@ class Game:
                 if self.board.is_impossible(*square):
                     break
                 piece = self.board.get_piece(*square)
-                if piece.colour == self.current_player:
+                if piece.colour == colour:
                     break
-                elif piece.colour == -self.current_player:
-                    legal_moves.append(square)
+                elif piece.colour == -colour:
+                    legal_moves.append(Move((row, col), square))
                     break
                 else:
-                    legal_moves.append(square)
+                    legal_moves.append(Move((row, col), square))
 
         return legal_moves
 
-    def get_legal_moves_bishop(self, row: int, col: int):
+    def get_legal_moves_bishop(self, row: int, col: int, colour: int):
         legal_moves = []
 
         directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
@@ -144,17 +182,17 @@ class Game:
                 if self.board.is_impossible(*square):
                     break
                 piece = self.board.get_piece(*square)
-                if piece.colour == self.current_player:
+                if piece.colour == colour:
                     break
-                elif piece.colour == -self.current_player:
-                    legal_moves.append(square)
+                elif piece.colour == -colour:
+                    legal_moves.append(Move((row, col), square))
                     break
                 else:
-                    legal_moves.append(square)
+                    legal_moves.append(Move((row, col), square))
 
         return legal_moves
 
-    def get_legal_moves_queen(self, row: int, col: int):
+    def get_legal_moves_queen(self, row: int, col: int, colour: int):
         legal_moves = []
 
         directions = [
@@ -176,17 +214,17 @@ class Game:
                 if self.board.is_impossible(*square):
                     break
                 piece = self.board.get_piece(*square)
-                if piece.colour == self.current_player:
+                if piece.colour == colour:
                     break
-                elif piece.colour == -self.current_player:
-                    legal_moves.append(square)
+                elif piece.colour == -colour:
+                    legal_moves.append(Move((row, col), square))
                     break
                 else:
-                    legal_moves.append(square)
+                    legal_moves.append(Move((row, col), square))
 
         return legal_moves
 
-    def get_legal_moves_king(self, row: int, col: int):
+    def get_legal_moves_king(self, row: int, col: int, colour: int):
         legal_moves = []
 
         directions = [
@@ -205,24 +243,21 @@ class Game:
             if self.board.is_impossible(*square):
                 continue
             piece = self.board.get_piece(*square)
-            if piece.colour == self.current_player:
+            if piece.colour == colour:
                 continue
-            elif piece.colour == -self.current_player:
-                legal_moves.append(square)
+            elif piece.colour == -colour:
+                legal_moves.append(Move((row, col), square))
                 continue
             else:
-                legal_moves.append(square)
+                legal_moves.append(Move((row, col), square))
 
         return legal_moves
 
-    def make_move(self, start_pos: POSITION, end_pos: POSITION):
+    def make_move(self, move: Move):
+        start_pos = move.start_pos
+        end_pos = move.end_pos
         if start_pos not in self.get_piece_locations(self.current_player):
             logging.warning(f"no valid piece in origin square {start_pos}")
-            return
-
-        legal_spaces = self.get_legal_moves(*start_pos)
-        if end_pos not in legal_spaces:
-            logging.warning(f"the indicated piece cannot move to the indicated square")
             return
 
         start_piece = self.board.get_piece(*start_pos)
@@ -248,6 +283,7 @@ class Game:
         print(self.board)
 
         self.current_player *= -1
+
 
 
 if __name__ == "__main__":
