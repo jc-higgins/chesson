@@ -91,19 +91,20 @@ class UI:
         if event.button == 1:
             clicked_square = self.get_square_from_mouse(event.pos)
             if clicked_square:
-                # If selecting the same square, deselect it
+                clicked_piece = self.game.board.get_piece(*clicked_square)
+                move = None
                 if self.selected_square:
-                    clicked_piece = self.game.board.get_piece(*clicked_square)
                     move = Move(self.selected_square, clicked_square)
 
+                # If selecting the same square, deselect it
                 if clicked_square == self.selected_square:
                     self.selected_square = None
                     self.legal_moves = []
 
-                # If selecting a legal move, make the move
-                elif move in self.legal_moves:
-                    self.game.make_move(move)
-                    self.selected_square = None
+                # If previously, selected a square, create a potential move
+                elif move  and move in self.legal_moves:
+                        self.game.make_move(move)
+                        self.selected_square = None
 
                 # If selecting a piece, select it and update the legal moves
                 elif not isinstance(self.game.board.get_piece(*clicked_square), Empty):

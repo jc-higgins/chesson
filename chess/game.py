@@ -90,10 +90,13 @@ class Game:
                 poss_legal_moves = self.get_legal_moves_king(
                     row, col, piece.colour, ignore_check
                 )
+            case _:
+                raise ValueError(f"Invalid piece: {piece.name}")
 
         if ignore_check:
             return poss_legal_moves
         else:
+            print(f"Checking {len(poss_legal_moves)} moves")
             for move in poss_legal_moves:
                 temp_game = deepcopy(self)
                 temp_game.make_move(move)

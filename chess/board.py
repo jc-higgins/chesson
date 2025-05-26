@@ -55,9 +55,6 @@ class Board:
                     piece = self.piece_key[token]
                     logging.info(f"Loading piece {token} with colour {piece.colour}")
                     row.append(piece)
-                    piece = self.piece_key[token]
-                    logging.info(f"Loading piece {token} with colour {piece.colour}")
-                    row.append(piece)
             board.append(row)
         self.board = board[::-1]
 
