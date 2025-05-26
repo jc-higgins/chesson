@@ -11,10 +11,10 @@ class Fen:
     def get_turn(self) -> str:
         return self.fen_str.split()[1]
 
-    def get_castles(self) -> str:
+    def get_castles(self) -> list[str]:
         return list(self.fen_str.split()[2])
 
-    def get_en_passant(self) -> tuple[int]:
+    def get_en_passant(self) -> tuple[int, int]:
         en_passant_str = self.fen_str.split()[3]
         if en_passant_str == "-":
             return (-1, -1)

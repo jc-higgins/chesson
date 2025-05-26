@@ -1,11 +1,10 @@
 from pathlib import Path
 from typing import Literal
 
-EMPTY = Literal['.']
-EMPTY = Literal['.']
-PIECE = Literal['p', 'r', 'n', 'b', 'q', 'k', 'P', 'R', 'N', 'B', 'Q', 'K']
+EMPTY = Literal["."]
+PIECE = Literal["p", "r", "n", "b", "q", "k", "P", "R", "N", "B", "Q", "K"]
 
-# Row, Col 
+# Row, Col
 POSITION = tuple[int, int]
 
 # Get the directory where constants.py is located

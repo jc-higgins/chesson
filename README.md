@@ -4,12 +4,12 @@ A custom-built chess engine written in Python with plans to migrate core compone
 
 ## 🚀 Goals
 
-- ✅ Build a fully functional chess engine in Python  
-- 🧠 Learn and implement core chess engine principles (move generation, search, evaluation)  
-- 🔁 Support move making/unmaking and game state tracking  
-- 🧮 Integrate a basic evaluation function and search algorithm  
-- ⚡ Later: Port performance-critical parts (move generation, search) to Rust or C++  
-- ♜ Optional: Implement UCI protocol to connect to chess GUIs (e.g., Lichess, Arena)  
+- ✅ Build a fully functional chess engine in Python
+- 🧠 Learn and implement core chess engine principles (move generation, search, evaluation)
+- 🔁 Support move making/unmaking and game state tracking
+- 🧮 Integrate a basic evaluation function and search algorithm
+- ⚡ Later: Port performance-critical parts (move generation, search) to Rust or C++
+- ♜ Optional: Implement UCI protocol to connect to chess GUIs (e.g., Lichess, Arena)
 
 ## 📐 Project Structure
 
@@ -80,9 +80,9 @@ python -m chess.ui
 
 ## 🧠 References & Learning
 
-- [Computer Chess Wiki](https://www.chessprogramming.org/Main_Page)  
-- [UCI Protocol Spec](https://gist.github.com/bagaturchess/09a346e54e34c8c36ef4)  
-- [PyChess Engine](https://github.com/pychess/pychess)  
+- [Computer Chess Wiki](https://www.chessprogramming.org/Main_Page)
+- [UCI Protocol Spec](https://gist.github.com/bagaturchess/09a346e54e34c8c36ef4)
+- [PyChess Engine](https://github.com/pychess/pychess)
 
 ## 📝 License
 
