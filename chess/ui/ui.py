@@ -1,11 +1,11 @@
 # ======= IMPORTS =======
-import logging
-import logging
 from typing import Optional
+
 import pygame
 
-from chess.constants import JetBrainsMono, PIECES_DIR, POSITION
+from chess.constants import PIECES_DIR, POSITION, JetBrainsMono
 from chess.game import Game
+from chess.move import Move
 from chess.pieces import Empty
 from chess.ui.ui_constants import (
     HIGHLIGHT_COLOUR,
@@ -13,7 +13,6 @@ from chess.ui.ui_constants import (
     SELECTED_COLOUR,
     SQUARE_SIZE,
 )
-from chess.move import Move
 
 
 class UI:
@@ -24,7 +23,6 @@ class UI:
     piece_images: dict[str, pygame.Surface]
     running: bool
     screen: pygame.Surface
-    selected_square: Optional[POSITION]
     selected_square: Optional[POSITION]
 
     def __init__(self) -> None:
@@ -71,7 +69,6 @@ class UI:
 
     # ======= SUPPORTING FUNCTIONS =======
     def get_square_from_mouse(self, pos: tuple[int, int]) -> Optional[POSITION]:
-    def get_square_from_mouse(self, pos: tuple[int, int]) -> Optional[POSITION]:
         """
         Get the square from the mouse position.
         Args:
@@ -95,29 +92,24 @@ class UI:
             clicked_square = self.get_square_from_mouse(event.pos)
             if clicked_square:
                 # If selecting the same square, deselect it
-                clicked_piece = self.game.board.get_piece(*clicked_square)
-                print(clicked_piece)
-                print(f"Clicked square: {clicked_square}")
-                print(f"Selected square: {self.selected_square}")
-                move = Move(self.selected_square, clicked_square)
+                if self.selected_square:
+                    clicked_piece = self.game.board.get_piece(*clicked_square)
+                    move = Move(self.selected_square, clicked_square)
 
                 if clicked_square == self.selected_square:
-                    print(f"Selected square, piece is {clicked_piece}")
                     self.selected_square = None
                     self.legal_moves = []
 
                 # If selecting a legal move, make the move
                 elif move in self.legal_moves:
-                    print(f"Selected legal move, piece is {clicked_piece}")
                     self.game.make_move(move)
                     self.selected_square = None
 
                 # If selecting a piece, select it and update the legal moves
                 elif not isinstance(self.game.board.get_piece(*clicked_square), Empty):
                     print(f"Not an empty square, piece is {clicked_piece}")
-                    print(
-                        f"Does colour match? {self.game.piece_matches_player(clicked_piece)}"
-                    )
+                    colour_match = self.game.piece_matches_player(clicked_piece)
+                    print(f"Does colour match? {colour_match}")
                     if self.game.piece_matches_player(clicked_piece):
                         self.selected_square = clicked_square
                         self.legal_moves = self.game.get_legal_moves(
@@ -183,10 +175,9 @@ class UI:
                         y = 50 * (9 - row) + (SQUARE_SIZE - PIECE_SIZE) // 2
                         self.screen.blit(piece_img, (x, y))
 
-
             # Coordinates
             for row in range(1, 9):
-                y =  488 - 50 * row
+                y = 488 - 50 * row
                 text = self.font.render(str(row), True, "black")
                 self.screen.blit(text, (40, y))
 

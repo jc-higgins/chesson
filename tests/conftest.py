@@ -1,7 +1,7 @@
-
 import pytest
-from chess.game import Game
+
 from chess.fen import Fen
+from chess.game import Game
 
 
 @pytest.fixture
@@ -10,5 +10,5 @@ def starting_fen() -> Fen:
 
 
 @pytest.fixture
-def starting_game(starting_fen: str) -> Game:
-    return Game(starting_fen)
+def starting_game() -> Game:
+    return Game()

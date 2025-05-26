@@ -1,87 +1,82 @@
-from abc import abstractmethod
-from chess.constants import POSITION
-from abc import abstractmethod
-from chess.constants import POSITION
-
-
 class Piece:
     colour: int
     piece_str: str
-    colour: int
-    piece_str: str
+    name: str
+    value: int = 0
 
-    def __init__(self, colour: int):
+    def __init__(self, colour: int, piece_str: str = ".") -> None:
         self.colour = colour
-        if colour == 1:
-            self.func = lambda x: x.upper()
-        elif colour == -1:
-            self.func = lambda x: x.lower()
+        self.piece_str = piece_str
+        self.name = self.matched_piece(piece_str) if piece_str != "." else "Empty"
+        self.value = 0
 
-    @abstractmethod
-    def get_legal_moves(self, board, pos: POSITION) -> list[POSITION]: ...
-
-
-    @abstractmethod
-    def get_legal_moves(self, board, pos: POSITION) -> list[POSITION]: ...
+    def matched_piece(self, x: str) -> str:
+        return x.upper() if self.colour == 1 else x.lower()
 
 
 class Knight(Piece):
+    name: str = "Knight"
+    value: int = 3
 
-    def __init__(self, colour):
-        super().__init__(colour)
-        self.piece_str = self.func("n")
-        self.name = "Knight"
-        self.value = 3
-
+    def __init__(self, colour: int) -> None:
+        super().__init__(
+            colour=colour, piece_str=str.upper("n") if colour == 1 else str.lower("n")
+        )
 
 
 class Pawn(Piece):
-    def __init__(self, colour):
-        super().__init__(colour)
-        self.piece_str = self.func("p")
-        self.name = "Pawn"
-        self.value = 1
+    name: str = "Pawn"
+    value: int = 1
+
+    def __init__(self, colour: int) -> None:
+        super().__init__(
+            colour=colour, piece_str=str.upper("p") if colour == 1 else str.lower("p")
+        )
 
 
 class Rook(Piece):
-    def __init__(self, colour):
-        super().__init__(colour)
-        self.piece_str = self.func("r")
-        self.name = "Rook"
-        self.value = 5
+    name: str = "Rook"
+    value: int = 5
+
+    def __init__(self, colour: int) -> None:
+        super().__init__(
+            colour=colour, piece_str=str.upper("r") if colour == 1 else str.lower("r")
+        )
 
 
 class Bishop(Piece):
-    def __init__(self, colour):
-        super().__init__(colour)
-        self.piece_str = self.func("b")
-        self.name = "Bishop"
-        self.value = 3
+    name: str = "Bishop"
+    value: int = 3
 
+    def __init__(self, colour: int) -> None:
+        super().__init__(
+            colour=colour, piece_str=str.upper("b") if colour == 1 else str.lower("b")
+        )
 
 
 class Queen(Piece):
-    def __init__(self, colour):
-        super().__init__(colour)
-        self.piece_str = self.func("q")
-        self.name = "Queen"
-        self.value = 9
+    name: str = "Queen"
+    value: int = 9
 
+    def __init__(self, colour: int) -> None:
+        super().__init__(
+            colour=colour, piece_str=str.upper("q") if colour == 1 else str.lower("q")
+        )
 
 
 class King(Piece):
-    def __init__(self, colour):
-        super().__init__(colour)
-        self.piece_str = self.func("k")
-        self.name = "King"
-        self.value = 100
+    name: str = "King"
+    value: int = 100
+
+    def __init__(self, colour: int) -> None:
+        super().__init__(
+            colour=colour, piece_str=str.upper("k") if colour == 1 else str.lower("k")
+        )
 
 
 class Empty(Piece):
+    name: str = "Empty"
+    value: int = 0
 
-class Empty(Piece):
-    def __init__(self):
-        self.colour = 0
-        self.piece_str = "."
-        self.name = "Empty"
-        self.value = 0
+    def __init__(self) -> None:
+        super().__init__(colour=0, piece_str=".")
