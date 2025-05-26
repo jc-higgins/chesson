@@ -1,4 +1,5 @@
 import logging
+import logging
 from typing import Literal, Optional, Union
 
 from chess.constants import EMPTY, PIECE
@@ -65,16 +66,21 @@ class Board:
                     piece = self.piece_key[token]
                     logging.info(f"Loading piece {token} with colour {piece.colour}")
                     row.append(piece)
+                    piece = self.piece_key[token]
+                    logging.info(f"Loading piece {token} with colour {piece.colour}")
+                    row.append(piece)
             board.append(row)
-        self.board = board
+        self.board = board[::-1]
 
     def __str__(self) -> str:
-        s = "========\n"
+        s = ["========"]
         for row in self.board:
-            s += ''.join([piece.piece_str for piece in row]) + '\n'
-        s += "========"
-        return s
+            s.append(''.join([piece.piece_str for piece in row]))
+        s.append("========")
+        return "\n".join(s[::-1])
     
+    def change_piece_in_location(self, row: int, col: int, piece: Piece):
+        self.board[row-1][col-1] = piece
     def change_piece_in_location(self, row: int, col: int, piece: Piece):
         self.board[row-1][col-1] = piece
 
